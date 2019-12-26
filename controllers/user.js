@@ -46,7 +46,7 @@ var controller = {
 				],
 				Subject: 'Confirmación de correo electrónico',
 				HTMLPart: 'Hola ' + toName + ', de click sobre el siguiente enlace para verificar su correo electronico: <br>' +
-							'<h3>Enlace</h3>'
+							'<h3>http://localhost:4200/emailConfirmation/' + toEmail + '</h3>'
 			}
 			]
 		}).then((result) => {
@@ -66,6 +66,13 @@ var controller = {
 			`SELECT id, name, lastName, password, email, photo, TO_CHAR(registrationDate, 'DD-MM-YYYY HH24:MI:SS') registrationDate, availableCredit, state, idRole, idShoppingCart
 			FROM User1
 			WHERE email = :email AND password = :password`, [email, password], false, res);
+	},
+
+	EmailConfirmation: function(req, res){
+		var email = req.params.email;
+		db.open(`UPDATE User1 
+				SET state = 2
+				WHERE email = :email`, [email], true, res);
 	}
 
 }
