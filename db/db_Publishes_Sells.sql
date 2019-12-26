@@ -22,6 +22,11 @@ CREATE TABLE Action(
     name VARCHAR2(25) NOT NULL
 );
 
+CREATE TABLE Color(
+    id NUMBER(*) PRIMARY KEY,
+    nombre VARCHAR2(30) NOT NULL
+);
+
 CREATE TABLE HomePage(
     id NUMBER(*) PRIMARY KEY,
     name VARCHAR2(30) NOT NULL,
@@ -40,8 +45,8 @@ CREATE TABLE User1(
    lastName VARCHAR2(30) NOT NULL,
    password VARCHAR2(80) NOT NULL,
    email VARCHAR2(50) UNIQUE NOT NULL,
-   phone VARCHAR2(15) NOT NULL,
-   photo VARCHAR2(55) NOT NULL,
+   phone VARCHAR2(15),
+   photo VARCHAR2(55),
    gender CHAR(1),
    birthDay DATE NOT NULL,
    registrationDate DATE NOT NULL,
@@ -66,23 +71,30 @@ CREATE TABLE Category(
 );
 
 CREATE TABLE Product(
-    code VARCHAR2(100) PRIMARY KEY,
+    id NUMBER(*) PRIMARY KEY,
+    code VARCHAR2(100) NOT NULL,
     image VARCHAR2(55) NOT NULL,
     description VARCHAR2(100),
     price NUMBER(*,2) NOT NULL,
     publicationDate DATE NOT NULL,
     stock NUMBER(*) NOT NULL,
-    color VARCHAR2(25),
     idCategory NUMBER(*) NOT NULL,
     FOREIGN KEY(idCategory) REFERENCES Category(id)
 );
 
+CREATE TABLE Product_Color(
+    idColor NUMBER(*) NOT NULL,
+    idProduct NUMBER(*) NOT NULL,
+    FOREIGN KEY(idColor) REFERENCES Color(id),
+    FOREIGN KEY(idProduct) REFERENCES Product(id)
+);
+
 CREATE TABLE ProductCart(
     idShoppingCart NUMBER(*) NOT NULL,
-    idProduct VARCHAR2(100) NOT NULL,
+    idProduct Number(*) NOT NULL,
     quantity NUMBER(*) NOT NULL,
     FOREIGN KEY(idShoppingCart) REFERENCES ShoppingCart(id),
-    FOREIGN KEY(idProduct) REFERENCES Product(code)
+    FOREIGN KEY(idProduct) REFERENCES Product(id)
 );
 
 CREATE TABLE Commentary(
@@ -91,24 +103,24 @@ CREATE TABLE Commentary(
     title VARCHAR2(30),
     content VARCHAR2(200) NOT NULL,
     idUser NUMBER(*) NOT NULL,
-    idProduct VARCHAR2(100) NOT NULL,
+    idProduct NUMBER(*) NOT NULL,
     FOREIGN KEY(idUser) REFERENCES User1(id),
-    FOREIGN KEY(idProduct) REFERENCES Product(code)
+    FOREIGN KEY(idProduct) REFERENCES Product(id)
 );
 
 CREATE TABLE Weighing(
-    idProduct VARCHAR2(100),
+    idProduct NUMBER(*),
     idUser NUMBER(*),
     quantity NUMBER(*,2) NOT NULL,
-    FOREIGN KEY(idProduct) REFERENCES Product(code),
+    FOREIGN KEY(idProduct) REFERENCES Product(id),
     FOREIGN KEY(idUser) REFERENCES User1(id),
     PRIMARY KEY(idProduct, idUser)
 );
 
 CREATE TABLE ProductUser(
-    idProduct VARCHAR2(100) NOT NULL,
+    idProduct NUMBER(*) NOT NULL,
     idUser NUMBER(*) NOT NULL,
-    FOREIGN KEY(idProduct) REFERENCES Product(code),
+    FOREIGN KEY(idProduct) REFERENCES Product(id),
     FOREIGN KEY(idUser) REFERENCES User1(id)
 );
 
@@ -130,11 +142,19 @@ CREATE TABLE Bill(
 
 CREATE TABLE BillDetail(
     idBill NUMBER(*) NOT NULL,
-    idProduct VARCHAR2(100) NOT NULL,
+    idProduct NUMBER(*) NOT NULL,
     quantity NUMBER(*) NOT NULL,
     FOREIGN KEY(idBill) REFERENCES Bill(id),
-    FOREIGN KEY(idProduct) REFERENCES Product(code)
+    FOREIGN KEY(idProduct) REFERENCES Product(id)
 );
+
+DROP TABLE BillDetail;
+DROP TABLE ProductUser;
+DROP TABLE Weighing;
+DROP TABLE Commentary;
+DROP TABLE ProductCart;
+DROP TABLE Product_Color;
+DROP TABLE Product;
 
 CREATE TABLE RoomUser(
     idRoom NUMBER(*) NOT NULL,
@@ -172,9 +192,27 @@ INSERT INTO MemberClass(id, name)
 VALUES(5, 'bronce');
 
 INSERT INTO HomePage(id, name, slogan, logo, video, mision, vision, aboutMe)
-VALUES(1, 'Publishes and sells', 'route', 'route', 'route', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s');
+VALUES(1, 'Publishes and sells', 'route', 'route', 'naturaleza.mp4', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s');
+
+INSERT INTO ShoppingCart(id)
+VALUES(sec_idShoppingCart.nextval);
+
+INSERT INTO User1(id, name, lastName, password, email, phone, photo, gender, birthDay, registrationDate, address, availableCredit, profitEarned, state, idRole, idShoppingCart, idMemberClass)
+VALUES(1, 'admin', 'admin', 'admin1', 'admin@gmail.com', '448887', null, null, TO_DATE('11-11-2010', 'DD-MM-YYYY'), SYSDATE, null, 0, 0, 2, 1, 1, 1);
 
 CREATE SEQUENCE sec_idRoom
+START WITH 1
+MINVALUE 1
+INCREMENT BY 1
+ORDER;
+
+CREATE SEQUENCE sec_idProduct
+START WITH 1
+MINVALUE 1
+INCREMENT BY 1
+ORDER;
+
+CREATE SEQUENCE sec_idColor
 START WITH 1
 MINVALUE 1
 INCREMENT BY 1
@@ -215,3 +253,19 @@ START WITH 1
 MINVALUE 1
 INCREMENT BY 1
 ORDER;
+
+CREATE OR REPLACE PROCEDURE RegisterUser(wname IN VARCHAR2, wlastName IN VARCHAR2, wpassword IN VARCHAR2, wemail IN VARCHAR2, wphone IN VARCHAR2, wphoto IN VARCHAR2, wgender IN CHAR, wbirthDay IN DATE,
+                                        wregistrationDate IN DATE, waddress IN VARCHAR2, wavailableCredit IN NUMBER, wprofitEarned IN NUMBER, wstate IN NUMBER, widRole IN NUMBER, widMemberClass IN NUMBER)
+IS
+total NUMBER;
+BEGIN
+    total := 0;
+    SELECT COUNT(*) INTO total FROM User1 WHERE email = wemail;
+    
+    IF total = 0 THEN
+        INSERT INTO ShoppingCart(id)
+        VALUES(sec_idShoppingCart.nextval);
+        INSERT INTO User1(id, name, lastName, password, email, phone, photo, gender, birthDay, registrationDate, address, availableCredit, profitEarned, state, idRole, idShoppingCart, idMemberClass)
+        VALUES(sec_idUser.nextval, wname, wlastName, wpassword, wemail, wphone, wphoto, wgender, wbirthDay, wregistrationDate, waddress, wavailableCredit, wprofitEarned, wstate, widRole, sec_idShoppingCart.currval, widMemberClass);
+    END IF;
+END;
