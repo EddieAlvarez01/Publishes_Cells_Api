@@ -351,3 +351,13 @@ BEGIN
         VALUES(idColor, sec_idProduct.currval);
     END IF;
 END;
+
+SELECT * FROM Category;
+
+SELECT COUNT(*) FROM Category WHERE LOWER(name) = LOWER('TECNOLOGIA');
+
+
+DELETE FROM Product_Color;
+DELETE FROM ProductUser;
+DELETE FROM Product;
+DELETE FROM category;

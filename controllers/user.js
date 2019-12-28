@@ -86,6 +86,7 @@ var controller = {
 		var publicationDate = req.body.publicationDate;
 		var idUser = req.body.idUser;
 		var stock = req.body.stock;
+		console.log(req.body);
 		db.open(`BEGIN
 				InsertLoad(:code, :img, :description, :fatherCategory, :daughterCategory, :price, :color, TO_DATE(:publicationDate, 'DD-MM-YYYY'), :idUser, :stock);
 				END;`, [code, img, description, fatherCategory, daughterCategory, price, color, publicationDate, idUser, stock], true, res);
