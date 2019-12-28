@@ -352,10 +352,17 @@ BEGIN
     END IF;
 END;
 
-SELECT * FROM Category;
+SELECT * FROM Product;
 
-SELECT COUNT(*) FROM Category WHERE LOWER(name) = LOWER('TECNOLOGIA');
+SELECT P.*, C.name 
+FROM PRODUCT P
+INNER JOIN Category C ON C.id = P.idCategory
+WHERE P.idCategory = 39 OR C.fatherCategory = 39;
 
+SELECT p.id, p.image, p.description, p.price, c.nombre  
+FROM Product_Color pc
+INNER JOIN Product p ON p.id = pc.idProduct
+INNER JOIN Color c ON c.id = pc.idColor;
 
 DELETE FROM Product_Color;
 DELETE FROM ProductUser;

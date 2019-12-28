@@ -9,6 +9,7 @@ var app = express();
 var home_routes = require('./routes/home');
 var user_routes = require('./routes/user');
 var product_routes = require('./routes/product');
+var images_routes = require('./routes/images');
 
 //middlewares
 app.use(bodyParser.urlencoded({extended:false}));
@@ -27,5 +28,6 @@ app.use((req, res, next) => {
 app.use('/api', home_routes);
 app.use('/api', user_routes);
 app.use('/api', product_routes);
+app.use('/api', images_routes);
 
 module.exports = app;
