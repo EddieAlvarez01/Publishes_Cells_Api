@@ -73,6 +73,22 @@ var controller = {
 		db.open(`UPDATE User1 
 				SET state = 2
 				WHERE email = :email`, [email], true, res);
+	},
+
+	BulkLoad: function(req, res){
+		var code = req.body.code;
+		var img = req.body.img;
+		var description = req.body.description;
+		var fatherCategory = req.body.fatherCategory;
+		var daughterCategory = req.body.daughterCategory;
+		var price = req.body.price;
+		var color = req.body.color;
+		var publicationDate = req.body.publicationDate;
+		var idUser = req.body.idUser;
+		var stock = req.body.stock;
+		db.open(`BEGIN
+				InsertLoad(:code, :img, :description, :fatherCategory, :daughterCategory, :price, :color, TO_DATE(:publicationDate, 'DD-MM-YYYY'), :idUser, :stock);
+				END;`, [code, img, description, fatherCategory, daughterCategory, price, color, publicationDate, idUser, stock], true, res);
 	}
 
 }

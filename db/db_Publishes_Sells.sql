@@ -269,3 +269,85 @@ BEGIN
         VALUES(sec_idUser.nextval, wname, wlastName, wpassword, wemail, wphone, wphoto, wgender, wbirthDay, wregistrationDate, waddress, wavailableCredit, wprofitEarned, wstate, widRole, sec_idShoppingCart.currval, widMemberClass);
     END IF;
 END;
+
+CREATE OR REPLACE PROCEDURE InsertLoad(wcode VARCHAR2, wimg VARCHAR2, wdescription VARCHAR2, wfatherCategory VARCHAR2, wdaughterCategory VARCHAR2, wprice NUMBER, wcolor VARCHAR2, wpublicationDate DATE,
+                                        widUser NUMBER, wstock NUMBER)
+IS
+    totalFatherCategory NUMBER;
+    totalDaughterCategory NUMBER;
+    totalColor NUMBER;
+    idFatherC NUMBER;
+    idDaughterC NUMBER;
+    idColor NUMBER;
+BEGIN
+    idFatherC := -1;
+    idDaughterC := -1;
+    IF wdaughterCategory IS NOT null THEN
+        totalFatherCategory := 0;
+        SELECT COUNT(*) INTO totalFatherCategory FROM Category WHERE LOWER(name) = LOWER(wfatherCategory);
+        IF totalFatherCategory = 0 THEN
+            INSERT INTO Category(id, name, description, fatherCategory)
+            VALUES(sec_idCategory.nextval, wfatherCategory, null, null);
+            idFatherC := sec_idCategory.currval;
+            totalDaughterCategory := 0;
+            SELECT COUNT(*) INTO totalDaughterCategory FROM Category WHERE LOWER(name) = LOWER(wdaughterCategory);
+            IF totalDaughterCategory = 0 THEN
+                INSERT INTO Category(id, name, description, fatherCategory)
+                VALUES(sec_idCategory.nextval, wdaughterCategory, null, idFatherC);
+                idDaughterC := sec_idCategory.currval;
+            ELSE
+                SELECT id INTO idDaughterC FROM Category WHERE LOWER(name) = LOWER(wdaughterCategory);
+            END IF;
+        ELSE
+            SELECT id INTO idFatherC FROM Category WHERE LOWER(name) = LOWER(wfatherCategory);
+            totalDaughterCategory := 0;
+            SELECT COUNT(*) INTO totalDaughterCategory FROM Category WHERE LOWER(name) = LOWER(wdaughterCategory);
+            IF totalDaughterCategory = 0 THEN
+                INSERT INTO Category(id, name, description, fatherCategory)
+                VALUES(sec_idCategory.nextval, wdaughterCategory, null, idFatherC);
+                idDaughterC := sec_idCategory.currval;
+            ELSE
+                SELECT id INTO idDaughterC FROM Category WHERE LOWER(name) = LOWER(wdaughterCategory);
+            END IF;
+        END IF;
+        totalColor := 0;
+        SELECT COUNT(*) INTO totalColor FROM Color WHERE LOWER(nombre) = LOWER(wcolor);
+        IF totalColor = 0 THEN
+            INSERT INTO Color(id, nombre)
+            VALUES(sec_idColor.nextval, wcolor);
+            idColor := sec_idColor.currval;   
+        ELSE
+            SELECT id INTO idColor FROM Color WHERE LOWER(nombre) = LOWER(wcolor);
+        END IF;
+        INSERT INTO Product(id, code, image, description, price, publicationDate, stock, idCategory)
+        VALUES(sec_idProduct.nextval, wcode, wimg, wdescription, wprice, wpublicationDate, wstock, idDaughterC);
+        INSERT INTO ProductUser(idProduct, idUser)
+        VALUES(sec_idProduct.currval, widUser);
+        INSERT INTO Product_Color(idColor, idProduct)
+        VALUES(idColor, sec_idProduct.currval);
+    ELSE
+        SELECT COUNT(*) INTO totalFatherCategory FROM Category WHERE LOWER(name) = LOWER(wfatherCategory);
+        IF totalFatherCategory = 0 THEN
+            INSERT INTO Category(id, name, description, fatherCategory)
+            VALUES(sec_idCategory.nextval, wfatherCategory, null, null);
+            idFatherC := sec_idCategory.currval;
+        ELSE
+            SELECT id INTO idFatherC FROM Category WHERE LOWER(name) = LOWER(wfatherCategory);
+        END IF;
+        totalColor := 0;
+        SELECT COUNT(*) INTO totalColor FROM Color WHERE LOWER(nombre) = LOWER(wcolor);
+        IF totalColor = 0 THEN
+            INSERT INTO Color(id, nombre)
+            VALUES(sec_idColor.nextval, wcolor);
+            idColor := sec_idColor.currval;   
+        ELSE
+            SELECT id INTO idColor FROM Color WHERE LOWER(nombre) = LOWER(wcolor);
+        END IF;
+        INSERT INTO Product(id, code, image, description, price, publicationDate, stock, idCategory)
+        VALUES(sec_idProduct.nextval, wcode, wimg, wdescription, wprice, wpublicationDate, wstock, idFatherC);
+        INSERT INTO ProductUser(idProduct, idUser)
+        VALUES(sec_idProduct.currval, widUser);
+        INSERT INTO Product_Color(idColor, idProduct)
+        VALUES(idColor, sec_idProduct.currval);
+    END IF;
+END;

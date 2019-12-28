@@ -9,5 +9,6 @@ router.post('/registerUser', UserController.RegisterUser);
 router.post('/sendEmailRegister', UserController.SendEmail_Confirmation);
 router.post('/loginUser', UserController.LoginUser);
 router.put('/emailConfirm/:email', UserController.EmailConfirmation);
+router.post('/registerProduct', UserController.BulkLoad);
 
 module.exports = router;
