@@ -62,6 +62,56 @@ var controller = {
 				INNER JOIN ProductUser pu ON pu.idProduct = p.id
 				INNER JOIN User1 us1 ON us1.id = pu.idUser
 				WHERE p.id = :idProduct`, [idProduct], false, res);
+	},
+
+	GetAllProductsForUser: function(req, res){
+		var idUser = req.params.idUser;
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+				FROM Product_Color pc
+				INNER JOIN Product p ON p.id = pc.idProduct
+				INNER JOIN Color c ON c.id = pc.idColor
+				INNER JOIN ProductUser pu ON pu.idProduct = p.id
+				INNER JOIN User1 us1 ON us1.id = pu.idUser
+				WHERE pu.idUser <> :idUser`, [idUser], false, res);
+	},
+
+	GetAllProductsForUserByCategory: function(req, res){
+		var idUser = req.params.idUser;
+		var idCategory = req.params.idCategory;
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+				FROM Product_Color pc
+				INNER JOIN Product p ON p.id = pc.idProduct
+				INNER JOIN Color c ON c.id = pc.idColor
+				INNER JOIN Category ca ON ca.id = p.idCategory
+				INNER JOIN ProductUser pu ON pu.idProduct = p.id
+				INNER JOIN User1 us1 ON us1.id = pu.idUser
+				WHERE (p.idCategory = :idCategory OR ca.fatherCategory = :idCategory) AND pu.idUser <> :idUser`, [idCategory, idCategory, idUser], false, res);
+	},
+
+	GetAllProductsForUserMatch: function(req, res){
+		var idUser = req.params.idUser;
+		var match = '%' + req.params.match + '%';
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+				FROM Product_Color pc
+				INNER JOIN Product p ON p.id = pc.idProduct
+				INNER JOIN Color c ON c.id = pc.idColor
+				INNER JOIN ProductUser pu ON pu.idProduct = p.id
+				INNER JOIN User1 us1 ON us1.id = pu.idUser
+				WHERE LOWER(p.description) LIKE :match AND pu.idUser <> :idUser`, [match, idUser], false, res);
+	},
+
+	GetAllProductsForUserMatchByCategory: function(req, res){
+		var idUser = req.params.idUser;
+		var match = '%' + req.params.match + '%';
+		var idCategory = req.params.idCategory;
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+				FROM Product_Color pc
+				INNER JOIN Product p ON p.id = pc.idProduct
+				INNER JOIN Color c ON c.id = pc.idColor
+				INNER JOIN Category ca ON ca.id = p.idCategory
+				INNER JOIN ProductUser pu ON pu.idProduct = p.id
+				INNER JOIN User1 us1 ON us1.id = pu.idUser
+				WHERE (p.idCategory = :idCategory OR ca.fatherCategory = :idCategory) AND LOWER(p.description) LIKE :match AND pu.idUser <> :idUser`, [idCategory, idCategory, match, idUser], false, res);
 	}	
 
 }

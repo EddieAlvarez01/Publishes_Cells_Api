@@ -11,5 +11,9 @@ router.get('/getAllProductNoLogedByCategory/:idCategory', ProductController.GetP
 router.get('/getAllProductsNoLoggedMatch/:match', ProductController.GetProductsNoLoggedByMatch);
 router.get('/getAllProductsNoLoggedMatchByCategory/:idCategory/:match', ProductController.GetProductsNoLoggedByMatchByCategory);
 router.get('/getProductId/:id', ProductController.GetProductById);
+router.get('/getProductsUser/:idUser', ProductController.GetAllProductsForUser);
+router.get('/getProductsUserByCategory/:idUser/:idCategory', ProductController.GetAllProductsForUserByCategory);
+router.get('/getProductsUserMatch/:idUser/:match', ProductController.GetAllProductsForUserMatch);
+router.get('/getProductsUserMatchByCategory/:idUser/:idCategory/:match', ProductController.GetAllProductsForUserMatchByCategory);
 
 module.exports = router;
