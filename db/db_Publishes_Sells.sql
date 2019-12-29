@@ -371,6 +371,14 @@ INNER JOIN Color c ON c.id = pc.idColor
 INNER JOIN Category ca ON ca.id = p.idCategory
 WHERE p.idCategory = 38 OR ca.fatherCategory = 38;
 
+SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+				FROM Product_Color pc
+				INNER JOIN Product p ON p.id = pc.idProduct
+				INNER JOIN Color c ON c.id = pc.idColor
+				INNER JOIN ProductUser pu ON pu.idProduct = p.id
+				INNER JOIN User1 us1 ON us1.id = pu.idUser
+				WHERE LOWER(p.description) LIKE '%s10%';
+
 DELETE FROM Product_Color;
 DELETE FROM ProductUser;
 DELETE FROM Product;
