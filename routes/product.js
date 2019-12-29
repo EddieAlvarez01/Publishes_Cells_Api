@@ -10,5 +10,6 @@ router.get('/getAllProduct_AllCategories', ProductController.GetAllProducts);
 router.get('/getAllProductNoLogedByCategory/:idCategory', ProductController.GetProductNoLogedByCategory);
 router.get('/getAllProductsNoLoggedMatch/:match', ProductController.GetProductsNoLoggedByMatch);
 router.get('/getAllProductsNoLoggedMatchByCategory/:idCategory/:match', ProductController.GetProductsNoLoggedByMatchByCategory);
+router.get('/getProductId/:id', ProductController.GetProductById);
 
 module.exports = router;

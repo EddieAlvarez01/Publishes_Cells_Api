@@ -148,14 +148,6 @@ CREATE TABLE BillDetail(
     FOREIGN KEY(idProduct) REFERENCES Product(id)
 );
 
-DROP TABLE BillDetail;
-DROP TABLE ProductUser;
-DROP TABLE Weighing;
-DROP TABLE Commentary;
-DROP TABLE ProductCart;
-DROP TABLE Product_Color;
-DROP TABLE Product;
-
 CREATE TABLE RoomUser(
     idRoom NUMBER(*) NOT NULL,
     idUser NUMBER(*) NOT NULL,

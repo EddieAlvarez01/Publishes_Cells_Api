@@ -51,6 +51,17 @@ var controller = {
 				INNER JOIN ProductUser pu ON pu.idProduct = p.id
 				INNER JOIN User1 us1 ON us1.id = pu.idUser
 				WHERE (p.idCategory = :idCategory OR ca.fatherCategory = :idCategory) AND LOWER(p.description) LIKE :match`, [idCategory, idCategory, match], false, res);
+	},
+
+	GetProductById: function(req, res){
+		var idProduct = req.params.id;
+		db.open(`SELECT p.image, p.description, p.price, TO_CHAR(p.publicationDate, 'DD/MM/YYYY') publicationDate, p.stock, c.nombre, us1.name, us1.lastName
+				FROM Product_Color pc
+				INNER JOIN Product p ON p.id = pc.idProduct
+				INNER JOIN Color c ON c.id = pc.idColor
+				INNER JOIN ProductUser pu ON pu.idProduct = p.id
+				INNER JOIN User1 us1 ON us1.id = pu.idUser
+				WHERE p.id = :idProduct`, [idProduct], false, res);
 	}	
 
 }
