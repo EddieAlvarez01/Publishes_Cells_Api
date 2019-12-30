@@ -134,6 +134,12 @@ var controller = {
 				FROM ProductCart ca
 				INNER JOIN Product p ON p.id = ca.idProduct
 				WHERE ca.idShoppingCart = :idShoppingCart`, [idShoppingCart], false, res);
+	},
+
+	DeleteProductCart: function(req, res){
+		var idShoppingCart = req.params.idShoppingCart;
+		var idProduct = req.params.idProduct;
+		db.open('DELETE FROM ProductCart WHERE idShoppingCart = :idShoppingCart AND idProduct = :idProduct', [idShoppingCart, idProduct], true, res);
 	}	
 
 }

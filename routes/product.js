@@ -18,5 +18,6 @@ router.get('/getProductsUserMatchByCategory/:idUser/:idCategory/:match', Product
 router.post('/addProductToCart', ProductController.AddProductCart);
 router.get('/VerifyProductCart/:idShoppingCart/:idProduct', ProductController.VerifyCart);
 router.get('/getProductsShoppingCart/:idShoppingCart', ProductController.GetProductShoppingCart);
+router.delete('/deleteProductCart/:idShoppingCart/:idProduct', ProductController.DeleteProductCart);
 
 module.exports = router;
