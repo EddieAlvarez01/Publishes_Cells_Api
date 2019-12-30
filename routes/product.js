@@ -15,5 +15,8 @@ router.get('/getProductsUser/:idUser', ProductController.GetAllProductsForUser);
 router.get('/getProductsUserByCategory/:idUser/:idCategory', ProductController.GetAllProductsForUserByCategory);
 router.get('/getProductsUserMatch/:idUser/:match', ProductController.GetAllProductsForUserMatch);
 router.get('/getProductsUserMatchByCategory/:idUser/:idCategory/:match', ProductController.GetAllProductsForUserMatchByCategory);
+router.post('/addProductToCart', ProductController.AddProductCart);
+router.get('/VerifyProductCart/:idShoppingCart/:idProduct', ProductController.VerifyCart);
+router.get('/getProductsShoppingCart/:idShoppingCart', ProductController.GetProductShoppingCart);
 
 module.exports = router;

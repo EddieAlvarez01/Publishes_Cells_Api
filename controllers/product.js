@@ -9,7 +9,7 @@ var controller = {
 	},
 
 	GetAllProducts: function(req, res){
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -19,7 +19,7 @@ var controller = {
 
 	GetProductNoLogedByCategory: function(req, res){
 		var idCategory = req.params.idCategory;
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -31,7 +31,7 @@ var controller = {
 
 	GetProductsNoLoggedByMatch: function(req, res){
 		var match = '%' + req.params.match + '%';
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -43,7 +43,7 @@ var controller = {
 	GetProductsNoLoggedByMatchByCategory: function(req, res){
 		var match = '%' + req.params.match + '%';
 		var idCategory = req.params.idCategory;
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -66,7 +66,7 @@ var controller = {
 
 	GetAllProductsForUser: function(req, res){
 		var idUser = req.params.idUser;
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -78,7 +78,7 @@ var controller = {
 	GetAllProductsForUserByCategory: function(req, res){
 		var idUser = req.params.idUser;
 		var idCategory = req.params.idCategory;
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -91,7 +91,7 @@ var controller = {
 	GetAllProductsForUserMatch: function(req, res){
 		var idUser = req.params.idUser;
 		var match = '%' + req.params.match + '%';
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -104,7 +104,7 @@ var controller = {
 		var idUser = req.params.idUser;
 		var match = '%' + req.params.match + '%';
 		var idCategory = req.params.idCategory;
-		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
+		db.open(`SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName, p.stock
 				FROM Product_Color pc
 				INNER JOIN Product p ON p.id = pc.idProduct
 				INNER JOIN Color c ON c.id = pc.idColor
@@ -112,6 +112,28 @@ var controller = {
 				INNER JOIN ProductUser pu ON pu.idProduct = p.id
 				INNER JOIN User1 us1 ON us1.id = pu.idUser
 				WHERE (p.idCategory = :idCategory OR ca.fatherCategory = :idCategory) AND LOWER(p.description) LIKE :match AND pu.idUser <> :idUser`, [idCategory, idCategory, match, idUser], false, res);
+	},
+
+	AddProductCart: function(req, res){
+		var idShoppingCart = req.body.idShoppingCart;
+		var idProduct = req.body.idProduct;
+		var quantity = req.body.quantity;
+		db.open(`INSERT INTO ProductCart(idShoppingCart, idProduct, quantity)
+				VALUES(:idShoppingCart, :idProduct, :quantity)`, [idShoppingCart, idProduct, quantity], true, res);
+	},
+
+	VerifyCart: function(req, res){
+		var idShoppingCart = req.params.idShoppingCart;
+		var idProduct = req.params.idProduct;
+		db.open(`SELECT idShoppingCart FROM ProductCart WHERE idShoppingCart = :idShoppingCart AND idProduct = :idProduct`, [idShoppingCart, idProduct], false, res);
+	},
+
+	GetProductShoppingCart: function(req, res){
+		var idShoppingCart = req.params.idShoppingCart;
+		db.open(`SELECT ca.idProduct, ca.quantity, p.description, p.price, p.stock
+				FROM ProductCart ca
+				INNER JOIN Product p ON p.id = ca.idProduct
+				WHERE ca.idShoppingCart = :idShoppingCart`, [idShoppingCart], false, res);
 	}	
 
 }

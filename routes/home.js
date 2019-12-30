@@ -7,5 +7,6 @@ var router = express.Router();
 
 router.get('/getDataHome', HomeController.GetDataHome);
 router.get('/getVideo/:video', HomeController.GetVideo);
+router.get('/getNameLogo', HomeController.GetNameLogo);
 
 module.exports = router;

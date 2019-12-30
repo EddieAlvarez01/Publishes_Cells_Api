@@ -12,6 +12,10 @@ var controller = {
 				WHERE id = 1`, [], false, res);
 	},
 
+	GetNameLogo: function(req, res){
+		db.open(`SELECT logo FROM HomePage`, [], false, res);
+	},
+
 	GetVideo: function(req, res){
 		var file = req.params.video;
 		var path_file = './video/' + file;

@@ -184,7 +184,7 @@ INSERT INTO MemberClass(id, name)
 VALUES(5, 'bronce');
 
 INSERT INTO HomePage(id, name, slogan, logo, video, mision, vision, aboutMe)
-VALUES(1, 'Publishes and sells', 'route', 'route', 'naturaleza.mp4', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s');
+VALUES(1, 'Publishes and sells', 'route', 'logoPrincipal.png', 'naturaleza.mp4', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s');
 
 INSERT INTO ShoppingCart(id)
 VALUES(sec_idShoppingCart.nextval);
@@ -344,7 +344,7 @@ BEGIN
     END IF;
 END;
 
-SELECT * FROM Category;
+SELECT * FROM User1;
 
 SELECT P.*, C.name 
 FROM PRODUCT P
