@@ -1,6 +1,19 @@
 'use strict'
 
 var db = require("../dao");
+var mailjet = require('node-mailjet').connect(
+	process.env.MJ_APIKEY_PUBLIC,
+	process.env.MJ_APIKEY_PRIVATE
+);
+
+var objOracle = require('oracledb');
+objOracle.outFormat = objOracle.OBJECT;
+
+var connection =  {
+	user: "db_Publishes_Sells",
+	password: "SDnlbI",
+	connectString: "localhost:1521/xe"
+}
 
 var controller = {
 
@@ -130,7 +143,7 @@ var controller = {
 
 	GetProductShoppingCart: function(req, res){
 		var idShoppingCart = req.params.idShoppingCart;
-		db.open(`SELECT ca.idProduct, ca.quantity, p.description, p.price, p.stock
+		db.open(`SELECT ca.idProduct, ca.quantity, p.description, p.price, p.stock, p.code
 				FROM ProductCart ca
 				INNER JOIN Product p ON p.id = ca.idProduct
 				WHERE ca.idShoppingCart = :idShoppingCart`, [idShoppingCart], false, res);
@@ -140,6 +153,108 @@ var controller = {
 		var idShoppingCart = req.params.idShoppingCart;
 		var idProduct = req.params.idProduct;
 		db.open('DELETE FROM ProductCart WHERE idShoppingCart = :idShoppingCart AND idProduct = :idProduct', [idShoppingCart, idProduct], true, res);
+	},
+
+	//No use el metodo de dao porque necesito que el procedure me devuelva el id de la factura.
+	BuyProducts: function(req, res){
+		var idUser = req.body.idUser;
+		var nameClient = req.body.nameClient;
+		var idShoppingCart = req.body.idShoppingCart;
+		var dateBill = req.body.dateBill;
+		var total = req.body.total;
+		objOracle.getConnection(connection, (err, cn) => {
+			if(err){
+				console.log(err.message);
+				return res.status(500).send({
+					message: 'Error de conexión'
+				});
+			}else{
+				cn.execute(
+					`BEGIN
+					CreateBill(:idUser, :nameClient, :idShoppingCart, TO_DATE(:dateBill, 'DD-MM-YYYY HH24:MI:SS'), :total, :v_id);
+					END;`,
+					{
+						idUser: idUser,
+						nameClient: nameClient,
+						idShoppingCart: idShoppingCart,
+						dateBill: dateBill,
+						total: total,
+						v_id: { dir: objOracle.BIND_OUT, type: objOracle.NUMBER }
+					},
+					{
+						autoCommit: true
+					},
+					(err, result) => {
+						if(err){
+							console.log(err.message);
+							res.status(500).send();
+						}else{
+							res.status(200).send({
+								data: result.outBinds
+							});
+						}
+						cn.release((err) => {
+							if(err) console.log(err.message);
+						});
+					}
+				);
+			}
+		});
+	},
+
+	SendInvoiceToEmail: function(req, res){
+		var toEmail = req.body.email;
+		var idUser = req.body.idUser;
+		var toName = req.body.name;
+		var htmlPart = req.body.htmlPart;
+		var total = req.body.total;
+		mailjet.post('send', { version: 'v3.1' }).request({
+			Messages:[{
+				From:{
+					Email: 'normalhak@gmail.com',
+					Name: 'Publishes_and_Cells',
+				},
+				To:[
+					{
+						Email: toEmail,
+						Name: toName
+					}
+				],
+				Subject: 'Compra del cliente ' + idUser + ': ' + toName,
+				HTMLPart: `<!DOCTYPE html>
+								<html>
+									<head>
+										<title>Molde</title>
+										<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+										<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+										<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+										<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+									</head>
+									<body>
+										<div class="container">` +
+											htmlPart +
+										    `<tr>
+										      <th scope="row"></th>
+										      <td></td>
+										      <td></td>
+										      <td>Total</td>
+										      <td>Q` + total + `</td>
+										    </tr>
+										  </tbody>
+										</table>
+										</div>
+									</body>
+								</html>`
+			}
+			]
+		}).then((result) => {
+			return res.status(200).send({
+				message: 'Correo enviado exitosamente'
+			});
+		}).catch((err) => {
+			console.log(err);
+			return res.status(500);
+		});
 	}	
 
 }

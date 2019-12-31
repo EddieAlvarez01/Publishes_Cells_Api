@@ -344,7 +344,34 @@ BEGIN
     END IF;
 END;
 
-SELECT * FROM User1;
+CREATE OR REPLACE PROCEDURE CreateBill(widUser NUMBER, wnameClient VARCHAR2, wShoppingCart NUMBER, wdateBill DATE, wtotal NUMBER, v_id OUT NUMBER)
+IS
+    CURSOR c1 IS SELECT * FROM ProductCart WHERE idShoppingCart = wShoppingCart;
+    varPrice NUMBER;
+    varidUsr NUMBER;
+BEGIN 
+    INSERT INTO Bill(id, client, shoppingCart, dateBill, total)
+    VALUES(sec_idBill.nextval, wnameClient, wShoppingCart, wdateBill, wtotal);
+    UPDATE User1 SET availableCredit = availableCredit - wtotal WHERE id = widUser;
+    FOR item IN c1 LOOP
+        INSERT INTO BillDetail(idBill, idProduct, quantity)
+        VALUES(sec_idBill.currval, item.idProduct, item.quantity);
+        SELECT price INTO varPrice FROM Product WHERE id = item.idProduct;
+        SELECT idUser INTO varidUsr FROM ProductUser WHERE idProduct = item.idProduct;
+        UPDATE User1 SET profitEarned = profitEarned + (varPrice * item.quantity) WHERE id = varidUsr;
+    END LOOP;
+    DELETE FROM ProductCart WHERE idShoppingCart = wShoppingCart;
+    v_id := sec_idBill.currval;
+END;
+
+CREATE OR REPLACE TRIGGER UpdateStock
+    AFTER INSERT ON BillDetail
+    FOR EACH ROW
+BEGIN
+    UPDATE Product
+    SET stock = stock - :NEW.quantity
+    WHERE id = :NEW.idProduct;
+END;
 
 SELECT P.*, C.name 
 FROM PRODUCT P

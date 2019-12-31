@@ -19,5 +19,7 @@ router.post('/addProductToCart', ProductController.AddProductCart);
 router.get('/VerifyProductCart/:idShoppingCart/:idProduct', ProductController.VerifyCart);
 router.get('/getProductsShoppingCart/:idShoppingCart', ProductController.GetProductShoppingCart);
 router.delete('/deleteProductCart/:idShoppingCart/:idProduct', ProductController.DeleteProductCart);
+router.post('/sendEmailBill', ProductController.SendInvoiceToEmail);
+router.post('/buyProducts', ProductController.BuyProducts);
 
 module.exports = router;
