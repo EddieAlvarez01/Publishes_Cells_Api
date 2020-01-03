@@ -364,6 +364,22 @@ BEGIN
     v_id := sec_idBill.currval;
 END;
 
+CREATE OR REPLACE PROCEDURE ChangeWeighing(widProduct NUMBER, widUser NUMBER, wquantity NUMBER)
+IS
+    varTotal NUMBER;
+BEGIN
+    varTotal := 0;
+    SELECT COUNT(*) INTO varTotal FROM Weighing WHERE idProduct = widProduct AND idUser = widUser;
+    IF varTotal = 0 THEN
+        INSERT INTO Weighing(idProduct, idUser, quantity)
+        VALUES(widProduct, widUser, wquantity);
+    ELSE
+        UPDATE Weighing
+        SET quantity = wquantity
+        WHERE idProduct = widProduct AND idUser = widUser;
+    END IF;
+END;
+
 CREATE OR REPLACE TRIGGER UpdateStock
     AFTER INSERT ON BillDetail
     FOR EACH ROW
@@ -372,6 +388,8 @@ BEGIN
     SET stock = stock - :NEW.quantity
     WHERE id = :NEW.idProduct;
 END;
+
+SELECT * FROM Weighing;
 
 SELECT P.*, C.name 
 FROM PRODUCT P

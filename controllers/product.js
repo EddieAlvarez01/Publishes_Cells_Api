@@ -255,6 +255,50 @@ var controller = {
 			console.log(err);
 			return res.status(500);
 		});
+	},
+
+	GetRatingProduct: function(req, res){
+		var idProduct = req.params.idProduct;
+		db.open(`SELECT AVG(quantity) rating FROM Weighing WHERE idProduct = :idProduct`, [idProduct], false, res);
+	},
+
+	GetProductForReviews: function(req, res){
+		var idProduct = req.params.idProduct;
+		db.open(`SELECT description, image FROM Product WHERE id = :idProduct`, [idProduct], false, res);
+	},
+
+	GetRatingByUserForProduct: function(req, res){
+		var idProduct = req.params.idProduct;
+		var idUser = req.params.idUser;
+		db.open(`SELECT quantity FROM Weighing WHERE idProduct = :idProduct AND idUser = :idUser`, [idProduct, idUser], false, res);
+	},
+
+	GetCommentsScoreProduct: function(req, res){
+		var idProduct = req.params.idProduct;
+		db.open(`SELECT w.quantity, usr.name, usr.lastName, TO_CHAR(c.creationDate, 'DD/MM/YYYY hh24:mi:ss') commentDate, c.title, c.content
+				FROM Commentary c
+				INNER JOIN Weighing w ON w.idUser = c.idUser
+				INNER JOIN User1 usr ON usr.id = c.idUser
+				WHERE c.idProduct = :idProduct`, [idProduct], false, res);
+	},
+
+	UpdateScoreUser: function(req, res){
+		var idProduct = req.body.idProduct;
+		var idUser = req.body.idUser;
+		var quantity = req.body.quantity;
+		db.open(`BEGIN
+				ChangeWeighing(:idProduct, :idUser, :quantity);
+				END;`, [idProduct, idUser, quantity], true, res);
+	},
+
+	InsertNewComentary: function(req, res){
+		var creationDate = req.body.creationDate;
+		var title = req.body.title;
+		var content = req.body.content;
+		var idUser = req.body.idUser;
+		var idProduct = req.body.idProduct;
+		db.open(`INSERT INTO Commentary(id, creationDate, title, content, idUser, idProduct)
+			VALUES(sec_idCommentary.nextval, TO_DATE(:creationDate, 'DD/MM/YYYY hh24:mi:ss'), :title, :content, :idUser, :idProduct)`, [creationDate, title, content, idUser, idProduct], true, res);
 	}	
 
 }

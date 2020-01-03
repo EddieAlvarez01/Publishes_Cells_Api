@@ -21,5 +21,11 @@ router.get('/getProductsShoppingCart/:idShoppingCart', ProductController.GetProd
 router.delete('/deleteProductCart/:idShoppingCart/:idProduct', ProductController.DeleteProductCart);
 router.post('/sendEmailBill', ProductController.SendInvoiceToEmail);
 router.post('/buyProducts', ProductController.BuyProducts);
+router.get('/getRatingProduct/:idProduct', ProductController.GetRatingProduct);
+router.get('/getProductForReview/:idProduct', ProductController.GetProductForReviews);
+router.get('/GetRatingByUserForProduct/:idProduct/:idUser', ProductController.GetRatingByUserForProduct);
+router.get('/GetCommentaryProduct/:idProduct', ProductController.GetCommentsScoreProduct);
+router.post('/UpdateScoreByUserForProduct', ProductController.UpdateScoreUser);
+router.post('/InsertNewCommentary', ProductController.InsertNewComentary);
 
 module.exports = router;
