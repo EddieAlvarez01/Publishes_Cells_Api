@@ -389,7 +389,7 @@ BEGIN
     WHERE id = :NEW.idProduct;
 END;
 
-SELECT * FROM Weighing;
+    SELECT * FROM User1;
 
 SELECT P.*, C.name 
 FROM PRODUCT P

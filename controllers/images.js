@@ -17,6 +17,22 @@ var controller = {
 				});
 			}
 		});
+	},
+
+	SaveImagesServer: function(req, res){
+		var fileName = "Imagen no subida";
+		if(req.files){
+			var filePath = req.files.image.path;
+			var fileSplit = filePath.split('/');
+			var fileName = fileSplit[1];
+			return res.status(200).send({
+				image: fileName
+			});
+		}else{
+			return res.status(500).send({
+				message: fileName
+			});
+		}
 	}
 
 }

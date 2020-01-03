@@ -10,6 +10,7 @@ var home_routes = require('./routes/home');
 var user_routes = require('./routes/user');
 var product_routes = require('./routes/product');
 var images_routes = require('./routes/images');
+var report_routes = require('./routes/report');
 
 //middlewares
 app.use(bodyParser.urlencoded({extended:false}));
@@ -29,5 +30,6 @@ app.use('/api', home_routes);
 app.use('/api', user_routes);
 app.use('/api', product_routes);
 app.use('/api', images_routes);
+app.use('/api', report_routes);
 
 module.exports = app;

@@ -28,6 +28,31 @@ var controller = {
 				});
 			}
 		});
+	},
+
+	UpdateDataHome: function(req, res){
+		var mision = req.body.mision;
+		var vision = req.body.vision;
+		var aboutme = req.body.aboutme;
+		db.open(`UPDATE HomePage 
+				SET mision = :mision, vision = :vision, aboutMe = :aboutme
+				WHERE id = 1`, [mision, vision, aboutme], true, res);
+	},
+
+	SaveVideoServer: function(req, res){
+		var fileName = "Video no subido";
+		if(req.files){
+			var filePath = req.files.video.path;
+			var fileSplit = filePath.split('/');
+			var fileName = fileSplit[1];
+			return res.status(200).send({
+				video: fileName
+			});
+		}else{
+			return res.status(500).send({
+				message: fileName
+			});
+		}
 	}
 
 }
