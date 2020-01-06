@@ -451,6 +451,20 @@ SELECT *FROM BillDetail;
 
 SELECT * FROM Weighing;
 
+SELECT * FROM Category;
+
+SELECT p.code, p.description, p.price, c.fatherCategory, usr.name, usr.lastName, c.name
+			 	FROM Product p
+			 	INNER JOIN ProductUser pu ON pu.idProduct = p.id
+			 	INNER JOIN Category c ON c.id = p.idCategory
+			 	INNER JOIN User1 usr ON usr.id = pu.idUser
+                INNER JOIN (
+                    SELECT fatherCategory
+                    FROM Category
+                    START WITH  id = (SELECT id FROM Category WHERE idCategory = id)
+                    CONNECT BY PRIOR id = fatherCategory   
+                ) t ON t.fathercategory = c.id;
+
 SELECT P.*, C.name 
 FROM PRODUCT P
 INNER JOIN Category C ON C.id = P.idCategory

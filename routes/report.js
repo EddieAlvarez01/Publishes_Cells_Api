@@ -14,5 +14,7 @@ router.get('/getTop3Customers', ReportController.GetTop3Customers);
 router.get('/getProductsComments/:date', ReportController.GetProductsComments);
 router.get('/getProductsStock/:quantity', ReportController.GetProductsStock);
 router.get('/getProductsRatingTop3', ReportController.GetProductsRatingTop3);
+router.get('/getAllProducts', ReportController.GetAllProducts);
+router.get('/getFatherCategory/:idCategory', ReportController.GetFatherCategory);
 
 module.exports = router;

@@ -32,11 +32,13 @@ var controller = {
 		var score = req.params.score;
 		db.open(`SELECT MAX(p.description) description, MAX(p.code)code, MAX(p.price) price, MAX(usr.name)name, MAX(usr.lastname)lastname, MAX(ROUND((SELECT AVG(w2.quantity) 
                                         												FROM Weighing w2
-                                        												WHERE w2.idProduct = w.idProduct))) average 
+                                        												WHERE w2.idProduct = w.idProduct))) average, MAX(cl.nombre)color 
 				FROM Weighing w
 				INNER JOIN Product p ON p.id = w.idProduct
 				INNER JOIN ProductUser pu ON pu.idProduct = w.idProduct
 				INNER JOIN User1 usr ON usr.id = pu.idUser
+				INNER JOIN Product_Color pc ON pc.idProduct = p.id
+				INNER JOIN Color cl ON cl.id = pc.idColor
 				GROUP BY w.idProduct
 				HAVING ROUND((SELECT AVG(w2.quantity) average  
 				FROM Weighing w2
@@ -44,15 +46,17 @@ var controller = {
 	},
 
 	GetTop3BestProducts: function(req, res){
-		db.open(`SELECT description, quantity, name, lastName, code
+		db.open(`SELECT description, quantity, name, lastName, code, color
 				FROM (
     					SELECT MAX(p.code) code, MAX(usr.name)name, MAX(usr.lastName) lastName, MAX(p.description) description, (SELECT SUM(quantity) 
                     															FROM BillDetail
-                    															WHERE bd.idProduct = idProduct) quantity
+                    															WHERE bd.idProduct = idProduct) quantity, MAX(c.nombre)color
 						FROM BillDetail bd
 						INNER JOIN Product p ON p.id = bd.idProduct
 						INNER JOIN ProductUser pu ON pu.idProduct = bd.idProduct
 						INNER JOIN User1 usr ON usr.id = pu.idUser
+						INNER JOIN Product_Color pc ON pc.idProduct = bd.idProduct
+						INNER JOIN color c ON c.id = pc.idColor
 						GROUP BY bd.idProduct
 						ORDER BY SUM(bd.quantity) DESC
 					)
@@ -73,11 +77,15 @@ var controller = {
 
 	GetProductsComments: function(req, res){
 		var date = req.params.date;
-		db.open(`SELECT MAX(description) description, COUNT(*) comments, MAX(dateMsg)dateMsg, MAX(code) code
+		db.open(`SELECT MAX(description) description, COUNT(*) comments, MAX(dateMsg)dateMsg, MAX(code) code, MAX(name)name, MAX(lastName) lastname, MAX(color)color
 				FROM (
-				    SELECT c.idProduct, p.code, p.description, TO_CHAR(c.creationDate, 'DD/MM/YYYY') dateMsg
+				    SELECT c.idProduct, p.code, p.description, TO_CHAR(c.creationDate, 'DD/MM/YYYY') dateMsg, usr.name, usr.lastname, cl.nombre color
 				    FROM Commentary c
 				    INNER JOIN Product p ON p.id = c.idProduct
+				    INNER JOIN ProductUser pu ON pu.idProduct = c.idProduct
+				    INNER JOIN User1 usr ON usr.id = pu.idUser
+				    INNER JOIN Product_Color pc ON pc.idProduct = c.idProduct
+				    INNER JOIN Color cl ON cl.id = pc.idColor
 				    WHERE TRUNC(c.creationDate) = TO_DATE(:dateE, 'DD-MM-YYYY')
 				) c
 				GROUP BY idProduct`, [date], false, res);
@@ -85,10 +93,12 @@ var controller = {
 
 	GetProductsStock: function(req, res){
 		var quantity = req.params.quantity;
-		db.open(`SELECT p.code, p.description, p.price, p.stock, usr.name, usr.lastName
+		db.open(`SELECT p.code, p.description, p.price, p.stock, usr.name, usr.lastName, c.nombre color
 				FROM Product p
 				INNER JOIN ProductUser pu ON pu.idProduct = p.id
 				INNER JOIN User1 usr ON usr.id = pu.idUser
+				INNER JOIN Product_Color pc ON pc.idProduct = p.id
+				INNER JOIN Color c ON c.id = pc.idColor
 				WHERE p.stock = :quantity`, [quantity], false, res);
 	},
 
@@ -108,6 +118,27 @@ var controller = {
                     				WHERE w2.idProduct = w.idProduct)) ASC   
 				)
 				WHERE ROWNUM <= 3`, [], false, res);
+	},
+
+	GetAllProducts: function(req, res){
+		db.open(`SELECT p.id, p.code, p.description, p.price, p.idCategory, usr.name, usr.lastName, c.name namCategory, cl.nombre
+			 	FROM Product p
+			 	INNER JOIN ProductUser pu ON pu.idProduct = p.id
+			 	INNER JOIN Category c ON c.id = p.idCategory
+			 	INNER JOIN User1 usr ON usr.id = pu.idUser
+			 	INNER JOIN Product_Color pc ON pc.idProduct = p.id
+			 	INNER JOIN Color cl ON cl.id = pc.idColor`, [], false, res);
+	},
+
+	GetFatherCategory: function(req, res){
+		var idCategory = req.params.idCategory;
+		db.open(`SELECT name
+				FROM Category
+				WHERE id = (
+					SELECT fatherCategory
+					FROM Category
+					WHERE id = :idCategory
+				)`, [idCategory], false, res);
 	}
 
 }
