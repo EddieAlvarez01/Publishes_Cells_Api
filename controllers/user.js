@@ -90,6 +90,33 @@ var controller = {
 		db.open(`BEGIN
 				InsertLoad(:code, :img, :description, :fatherCategory, :daughterCategory, :price, :color, TO_DATE(:publicationDate, 'DD-MM-YYYY'), :idUser, :stock);
 				END;`, [code, img, description, fatherCategory, daughterCategory, price, color, publicationDate, idUser, stock], true, res);
+	},
+
+	GetUserForEdit: function(req, res){
+		var idUser = req.params.idUser;
+		db.open(`SELECT address, phone
+				FROM User1
+				WHERE id = :idUser`, [idUser], false, res);
+	},
+
+	UpdateUser: function(req, res){
+		var idUser = req.body.idUser;
+		var email = req.body.email;
+		var name = req.body.name;
+		var lastName = req.body.lastName;
+		var address = req.body.address;
+		var phone = req.body.phone;
+		var password = req.body.password;
+		var nameImg = req.body.nameImg;
+		if(nameImg == null){
+			db.open(`UPDATE User1
+					SET name = :name, lastName = :lastName, address = :address, phone = :phone, email = :email, password = :password
+					WHERE id = :idUser`, [name, lastName, address, phone, email, password, idUser], true, res);
+		}else{
+			db.open(`UPDATE User1
+					SET name = :name, lastName = :lastName, address = :address, phone = :phone, password = :password, email = :email, photo = :nameImg
+					WHERE id = :idUser`, [name, lastName, address, phone, password, email, nameImg, idUser], true, res);
+		}
 	}
 
 }

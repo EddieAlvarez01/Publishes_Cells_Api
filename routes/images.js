@@ -10,5 +10,6 @@ var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart({ uploadDir: './img' });
 
 router.get('/get-image/:image', ImagesController.GetImage);
+router.post('/uploadImage', multipartMiddleware, ImagesController.SaveImagesServer);
 
 module.exports = router;

@@ -389,7 +389,67 @@ BEGIN
     WHERE id = :NEW.idProduct;
 END;
 
-    SELECT * FROM User1;
+SELECT MAX(p.description), MAX(p.price), MAX(ROUND((SELECT AVG(w2.quantity) 
+                                        FROM Weighing w2
+                                        WHERE w2.idProduct = w.idProduct))) average  
+				FROM Weighing w
+				INNER JOIN Product p ON p.id = w.idProduct
+                GROUP BY w.idProduct
+HAVING ROUND((SELECT AVG(w2.quantity) 
+                                        FROM Weighing w2
+                                        WHERE w2.idProduct = w.idProduct)) = 3 ;
+
+
+SELECT idProduct, description, quantity
+FROM (
+    SELECT bd.idProduct, MAX(p.description) description, (SELECT SUM(quantity) 
+                    FROM BillDetail
+                    WHERE bd.idProduct = idProduct) quantity
+FROM BillDetail bd
+INNER JOIN Product p ON p.id = bd.idProduct
+GROUP BY bd.idProduct
+ORDER BY SUM(bd.quantity) DESC
+)
+WHERE ROWNUM <= 3;
+
+SELECT name, lastName, productos
+FROM(
+    SELECT MAX(usr.name)name, MAX(usr.lastName)lastName, COUNT(pu.idProduct) productos
+    FROM ProductUser pu
+    INNER JOIN User1 usr ON usr.id = pu.idUser 
+    GROUP BY pu.idUser
+    ORDER BY COUNT(pu.idProduct) DESC   
+)
+WHERE ROWNUM <= 3;
+
+SELECT MAX(description) description, COUNT(*) comments, MAX(dateMsg)dateMsg
+FROM (
+    SELECT c.idProduct, p.description, TO_CHAR(c.creationDate, 'DD/MM/YYYY') dateMsg
+    FROM Commentary c
+    INNER JOIN Product p ON p.id = c.idProduct
+    WHERE TRUNC(c.creationDate) = TO_DATE('02-01-2020')
+) c
+GROUP BY idProduct;
+
+SELECT description, code, price, average
+FROM (
+    SELECT MAX(p.description) description, MAX(p.code)code, MAX(p.price) price, MAX(ROUND((SELECT AVG(w2.quantity) 
+                                                                                            FROM Weighing w2
+                                                                                            WHERE w2.idProduct = w.idProduct))) average  
+    FROM Weighing w
+    INNER JOIN Product p ON p.id = w.idProduct
+    GROUP BY w.idProduct
+    ORDER BY ROUND((SELECT AVG(w2.quantity) 
+                    FROM Weighing w2
+                    WHERE w2.idProduct = w.idProduct)) ASC   
+)
+WHERE ROWNUM <= 3;
+
+SELECT * FROM Commentary;
+
+SELECT *FROM BillDetail;
+
+SELECT * FROM Weighing;
 
 SELECT P.*, C.name 
 FROM PRODUCT P

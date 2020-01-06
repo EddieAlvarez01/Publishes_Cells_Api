@@ -16,6 +16,7 @@ var report_routes = require('./routes/report');
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(bodyParser.json());
 
+
 //CORS
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
