@@ -16,5 +16,6 @@ router.get('/getProductsStock/:quantity', ReportController.GetProductsStock);
 router.get('/getProductsRatingTop3', ReportController.GetProductsRatingTop3);
 router.get('/getAllProducts', ReportController.GetAllProducts);
 router.get('/getFatherCategory/:idCategory', ReportController.GetFatherCategory);
+router.get('/getHelpDeskAverage', ReportController.GetAverageHelpDesk);
 
 module.exports = router;

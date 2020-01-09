@@ -62,6 +62,14 @@ CREATE TABLE User1(
    FOREIGN KEY(idShoppingCart) REFERENCES ShoppingCart(id)
 );
 
+CREATE TABLE UserRating(
+    idHelpDesk NUMBER(*),
+    idUser NUMBER(*),
+    quantity NUMBER(*),
+    FOREIGN KEY(idHelpDesk) REFERENCES User1(id) ON DELETE CASCADE,
+    FOREIGN KEY(idUser) REFERENCES User1(id) ON DELETE CASCADE
+);
+
 CREATE TABLE Category(
     id NUMBER(*) PRIMARY KEY,
     name VARCHAR2(30) NOT NULL,
@@ -380,6 +388,77 @@ BEGIN
     END IF;
 END;
 
+CREATE OR REPLACE PROCEDURE updateUser(wid NUMBER, wname VARCHAR2, WlastName VARCHAR2, wpassword VARCHAR2, wemail VARCHAR2, wphone VARCHAR2, waddress VARCHAR2)
+AS
+BEGIN
+    UPDATE User1
+    SET name = wname, lastName = wlastName, password = wpassword, email = wemail, phone = wphone, address = waddress
+    WHERE id = wid;
+END;
+
+CREATE OR REPLACE PROCEDURE deleteUser(wid NUMBER)
+IS
+    idCart NUMBER;
+BEGIN
+    SELECT idShoppingCart INTO idCart FROM User1 WHERE id = wid;
+    DELETE FROM Commentary WHERE idUser = wid;
+    DELETE FROM Weighing WHERE idUser = wid;
+    DELETE FROM ProductUser WHERE idUser = wid;
+    DELETE FROM RoomUser WHERE idUser = wid;
+    DELETE FROM Message WHERE idUser = wid;
+    DELETE FROM User1 WHERE id = wid;
+    DELETE FROM ProductCart WHERE idShoppingCart = idCart;
+    DELETE FROM ShoppingCart WHERE id = idCart;
+END;
+
+CREATE OR REPLACE PROCEDURE createCategory(wname VARCHAR2, wdescription VARCHAR2, widFather NUMBER)
+IS
+    varTotal NUMBER;
+BEGIN
+    varTotal := 0;
+    SELECT COUNT(*) INTO varTotal FROM Category WHERE LOWER(name) = LOWER(wname);
+    IF varTotal = 0 THEN
+        INSERT INTO Category(id, name, description, fatherCategory)
+        VALUES(sec_idCategory.nextval, wname, wdescription, widFather);
+    END IF;
+END;
+
+CREATE OR REPLACE PROCEDURE updateCategoryCrud(wid NUMBER, wname VARCHAR2, wdescription VARCHAR2)
+AS
+BEGIN
+    UPDATE Category
+    SET name = wname, description = wdescription
+    WHERE id = wid;
+END;
+    
+CREATE OR REPLACE PROCEDURE deleteCategoryCrud(wid NUMBER)
+AS
+BEGIN
+    DELETE FROM Category WHERE id = wid;
+END;
+
+
+CREATE OR REPLACE PROCEDURE CreateRoomUser(idHD NUMBER, usrId NUMBER, v_id  OUT NUMBER)
+AS
+BEGIN
+    INSERT INTO Room(id, creationDate)
+    VALUES(sec_idRoom.nextval, SYSDATE);
+    INSERT INTO RoomUser(idRoom, idUser)
+    VALUES(sec_idRoom.currval, idHD);
+    INSERT INTO RoomUser(idRoom, idUser)
+    VALUES(sec_idRoom.currval, usrId);
+    v_id := sec_idRoom.currval;
+END;
+
+CREATE OR REPLACE PROCEDURE RatingUser(widRoom NUMBER, widHelpDesk NUMBER, widUser NUMBER, wquantity NUMBER)
+AS
+BEGIN
+    INSERT INTO UserRating(idHelpDesk, idUser, quantity)
+    VALUES(widHelpDesk, widUser, wquantity);
+    DELETE FROM Room WHERE id = widRoom;
+END;
+    
+
 CREATE OR REPLACE TRIGGER UpdateStock
     AFTER INSERT ON BillDetail
     FOR EACH ROW
@@ -388,109 +467,3 @@ BEGIN
     SET stock = stock - :NEW.quantity
     WHERE id = :NEW.idProduct;
 END;
-
-SELECT MAX(p.description), MAX(p.price), MAX(ROUND((SELECT AVG(w2.quantity) 
-                                        FROM Weighing w2
-                                        WHERE w2.idProduct = w.idProduct))) average  
-				FROM Weighing w
-				INNER JOIN Product p ON p.id = w.idProduct
-                GROUP BY w.idProduct
-HAVING ROUND((SELECT AVG(w2.quantity) 
-                                        FROM Weighing w2
-                                        WHERE w2.idProduct = w.idProduct)) = 3 ;
-
-
-SELECT idProduct, description, quantity
-FROM (
-    SELECT bd.idProduct, MAX(p.description) description, (SELECT SUM(quantity) 
-                    FROM BillDetail
-                    WHERE bd.idProduct = idProduct) quantity
-FROM BillDetail bd
-INNER JOIN Product p ON p.id = bd.idProduct
-GROUP BY bd.idProduct
-ORDER BY SUM(bd.quantity) DESC
-)
-WHERE ROWNUM <= 3;
-
-SELECT name, lastName, productos
-FROM(
-    SELECT MAX(usr.name)name, MAX(usr.lastName)lastName, COUNT(pu.idProduct) productos
-    FROM ProductUser pu
-    INNER JOIN User1 usr ON usr.id = pu.idUser 
-    GROUP BY pu.idUser
-    ORDER BY COUNT(pu.idProduct) DESC   
-)
-WHERE ROWNUM <= 3;
-
-SELECT MAX(description) description, COUNT(*) comments, MAX(dateMsg)dateMsg
-FROM (
-    SELECT c.idProduct, p.description, TO_CHAR(c.creationDate, 'DD/MM/YYYY') dateMsg
-    FROM Commentary c
-    INNER JOIN Product p ON p.id = c.idProduct
-    WHERE TRUNC(c.creationDate) = TO_DATE('02-01-2020')
-) c
-GROUP BY idProduct;
-
-SELECT description, code, price, average
-FROM (
-    SELECT MAX(p.description) description, MAX(p.code)code, MAX(p.price) price, MAX(ROUND((SELECT AVG(w2.quantity) 
-                                                                                            FROM Weighing w2
-                                                                                            WHERE w2.idProduct = w.idProduct))) average  
-    FROM Weighing w
-    INNER JOIN Product p ON p.id = w.idProduct
-    GROUP BY w.idProduct
-    ORDER BY ROUND((SELECT AVG(w2.quantity) 
-                    FROM Weighing w2
-                    WHERE w2.idProduct = w.idProduct)) ASC   
-)
-WHERE ROWNUM <= 3;
-
-SELECT * FROM Commentary;
-
-SELECT *FROM BillDetail;
-
-SELECT * FROM Weighing;
-
-SELECT * FROM Category;
-
-SELECT p.code, p.description, p.price, c.fatherCategory, usr.name, usr.lastName, c.name
-			 	FROM Product p
-			 	INNER JOIN ProductUser pu ON pu.idProduct = p.id
-			 	INNER JOIN Category c ON c.id = p.idCategory
-			 	INNER JOIN User1 usr ON usr.id = pu.idUser
-                INNER JOIN (
-                    SELECT fatherCategory
-                    FROM Category
-                    START WITH  id = (SELECT id FROM Category WHERE idCategory = id)
-                    CONNECT BY PRIOR id = fatherCategory   
-                ) t ON t.fathercategory = c.id;
-
-SELECT P.*, C.name 
-FROM PRODUCT P
-INNER JOIN Category C ON C.id = P.idCategory
-WHERE P.idCategory = 38 OR C.fatherCategory = 38;
-
-SELECT p.id, p.image, p.description, p.price, c.nombre  
-FROM Product_Color pc
-INNER JOIN Product p ON p.id = pc.idProduct
-INNER JOIN Color c ON c.id = pc.idColor;
-
-SELECT p.id, p.image, p.description, p.price, c.nombre, ca.name  
-FROM Product_Color pc
-INNER JOIN Product p ON p.id = pc.idProduct
-INNER JOIN Color c ON c.id = pc.idColor
-INNER JOIN Category ca ON ca.id = p.idCategory
-WHERE p.idCategory = 38 OR ca.fatherCategory = 38;
-
-SELECT p.id, p.image, p.description, p.price, c.nombre, us1.name, us1.lastName
-				FROM Product_Color pc
-				INNER JOIN Product p ON p.id = pc.idProduct
-				INNER JOIN Color c ON c.id = pc.idColor
-				INNER JOIN ProductUser pu ON pu.idProduct = p.id
-				INNER JOIN User1 us1 ON us1.id = pu.idUser
-				WHERE LOWER(p.description) LIKE '%s10%';
-
-DELETE FROM Product_Color;
-DELETE FROM ProductUser;
-DELETE FROM Product;
-DELETE FROM category;

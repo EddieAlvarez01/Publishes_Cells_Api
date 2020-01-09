@@ -117,6 +117,54 @@ var controller = {
 					SET name = :name, lastName = :lastName, address = :address, phone = :phone, password = :password, email = :email, photo = :nameImg
 					WHERE id = :idUser`, [name, lastName, address, phone, password, email, nameImg, idUser], true, res);
 		}
+	},
+
+	GetUserCrud: function(req, res){
+		db.open(`SELECT usr.id, usr.name, usr.lastname, usr.email, usr.phone, usr.address, usr.state, r.name namerole 
+				FROM User1 usr
+				INNER JOIN Role r ON r.id = usr.idRole
+				WHERE usr.id <> 1`, [], false, res);
+	},
+
+	UpdateUserCrud: function(req, res){
+		var idUser = req.body.idUser;
+		var name = req.body.name;
+		var lastName = req.body.lastName;
+		var password = req.body.password;
+		var email = req.body.email;
+		var phone = req.body.phone;
+		var address = req.body.address; 
+		db.open(`BEGIN
+					updateUser(:idUser, :name, :lastName, :password, :email, :phone, :address);
+				END;`, [idUser, name, lastName, password, email, phone, address], true, res);
+	},
+
+	DeleteUserCrud: function(req, res){
+		var idUser = req.params.idUser;
+		db.open(`BEGIN
+					deleteUser(:idUser);
+				END;`, [idUser], true, res);
+	},
+
+	GetUserUpdate: function(req, res){
+		var idUser = req.params.idUser;
+		db.open(`SELECT name, lastname, password, email, phone, address
+				FROM User1
+				WHERE id = :idUser`, [idUser], false, res);
+	},
+
+	GetAllHelpDesk: function(req, res){
+		db.open(`SELECT id, name, lastname FROM User1 WHERE idRole = 2`, [], false, res);
+	},
+
+	RatingUser: function(req, res){
+		var idHelpDesk = req.body.idHelpDesk;
+		var idUser = req.body.idUser;
+		var quantity = req.body.quantity;
+		var idRoom = req.body.idRoom;
+		db.open(`BEGIN 
+					RatingUser(:idRoom, :idHelpDesk, :idUser, :quantity);
+				END;`, [idRoom, idHelpDesk, idUser, quantity], true, res);
 	}
 
 }

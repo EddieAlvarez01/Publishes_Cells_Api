@@ -27,5 +27,10 @@ router.get('/GetRatingByUserForProduct/:idProduct/:idUser', ProductController.Ge
 router.get('/GetCommentaryProduct/:idProduct', ProductController.GetCommentsScoreProduct);
 router.post('/UpdateScoreByUserForProduct', ProductController.UpdateScoreUser);
 router.post('/InsertNewCommentary', ProductController.InsertNewComentary);
+router.get('/getAllCategoriesForCrud', ProductController.GetAllProductsForCrud);
+router.post('/createCategory', ProductController.CreateCategoryCrud);
+router.put('/updateCategory', ProductController.UpdateCategoryCrud);
+router.delete('/deleteCategory/:idCategory', ProductController.DeleteCategoryCrud);
+router.get('/getCategoryByid/:idCategory', ProductController.GetCategoryById);
 
 module.exports = router;

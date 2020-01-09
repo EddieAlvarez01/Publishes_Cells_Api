@@ -2,8 +2,14 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var http = require('http');
+var socketIO = require('./socketIO');
 
 var app = express();
+
+var httpServer = http.createServer(app);
+
+
 
 //cargar archivos rutas
 var home_routes = require('./routes/home');
@@ -11,6 +17,7 @@ var user_routes = require('./routes/user');
 var product_routes = require('./routes/product');
 var images_routes = require('./routes/images');
 var report_routes = require('./routes/report');
+var chat_routes = require('./routes/chat');
 
 //middlewares
 app.use(bodyParser.urlencoded({extended:false}));
@@ -32,5 +39,8 @@ app.use('/api', user_routes);
 app.use('/api', product_routes);
 app.use('/api', images_routes);
 app.use('/api', report_routes);
+app.use('/api', chat_routes);
 
-module.exports = app;
+socketIO.initialize(httpServer);
+
+module.exports = httpServer;

@@ -14,5 +14,7 @@ router.get('/getVideo/:video', HomeController.GetVideo);
 router.get('/getNameLogo', HomeController.GetNameLogo);
 router.put('/updateDataHome', HomeController.UpdateDataHome);
 router.post('/uploadVideo', multipartMiddleware, HomeController.SaveVideoServer);
+router.put('/updateVideo', HomeController.UpdateVideo);
+router.put('/updateLogo', HomeController.UpdateLogo);
 
 module.exports = router;

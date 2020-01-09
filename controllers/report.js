@@ -139,6 +139,18 @@ var controller = {
 					FROM Category
 					WHERE id = :idCategory
 				)`, [idCategory], false, res);
+	},
+
+	GetAverageHelpDesk: function(req, res){
+		db.open(`SELECT MAX(usr.name) name, MAX(usr.lastname) lastname, MAX((SELECT AVG(ur2.quantity) 
+																FROM UserRating ur2
+																WHERE ur2.idHelpDesk = ur.idHelpDesk)) average
+				FROM UserRating ur
+				INNER JOIN User1 usr ON usr.id = ur.idHelpDesk
+				GROUP BY ur.idHelpDesk
+				ORDER BY (SELECT AVG(ur2.quantity)
+							FROM UserRating ur2
+							WHERE ur2.idHelpDesk = ur.idHelpDesk) DESC`, [], false, res);
 	}
 
 }

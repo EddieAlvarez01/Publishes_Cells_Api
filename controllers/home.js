@@ -8,12 +8,12 @@ var controller = {
 
 	GetDataHome: function(req, res){
 		
-		db.open(`SELECT video, mision, vision, aboutMe FROM HomePage
+		db.open(`SELECT video, mision, vision, aboutMe, slogan FROM HomePage
 				WHERE id = 1`, [], false, res);
 	},
 
 	GetNameLogo: function(req, res){
-		db.open(`SELECT logo FROM HomePage`, [], false, res);
+		db.open(`SELECT logo, name FROM HomePage`, [], false, res);
 	},
 
 	GetVideo: function(req, res){
@@ -34,9 +34,10 @@ var controller = {
 		var mision = req.body.mision;
 		var vision = req.body.vision;
 		var aboutme = req.body.aboutme;
+		var slogan = req.body.slogan;
 		db.open(`UPDATE HomePage 
-				SET mision = :mision, vision = :vision, aboutMe = :aboutme
-				WHERE id = 1`, [mision, vision, aboutme], true, res);
+				SET mision = :mision, vision = :vision, aboutMe = :aboutme, slogan = :slogan
+				WHERE id = 1`, [mision, vision, aboutme, slogan], true, res);
 	},
 
 	SaveVideoServer: function(req, res){
@@ -53,6 +54,20 @@ var controller = {
 				message: fileName
 			});
 		}
+	},
+
+	UpdateVideo: function(req, res){
+		var video = req.body.video;
+		db.open(`UPDATE HomePage
+				SET video = :video
+				WHERE id = 1`, [video], true, res);
+	},
+
+	UpdateLogo: function(req, res){
+		var image = req.body.image;
+		db.open(`UPDATE HomePage
+				SET logo = :image
+				WHERE id = 1`, [image], true, res);
 	}
 
 }

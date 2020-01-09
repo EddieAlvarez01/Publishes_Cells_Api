@@ -275,9 +275,10 @@ var controller = {
 
 	GetCommentsScoreProduct: function(req, res){
 		var idProduct = req.params.idProduct;
-		db.open(`SELECT w.quantity, usr.name, usr.lastName, TO_CHAR(c.creationDate, 'DD/MM/YYYY hh24:mi:ss') commentDate, c.title, c.content
+		db.open(`SELECT (SELECT w2.quantity
+						FROM Weighing w2
+						WHERE w2.idProduct = c.idProduct AND w2.idUser = c.idUser)quantity, usr.name, usr.lastName, TO_CHAR(c.creationDate, 'DD/MM/YYYY hh24:mi:ss') commentDate, c.title, c.content
 				FROM Commentary c
-				INNER JOIN Weighing w ON w.idUser = c.idUser
 				INNER JOIN User1 usr ON usr.id = c.idUser
 				WHERE c.idProduct = :idProduct`, [idProduct], false, res);
 	},
@@ -299,6 +300,40 @@ var controller = {
 		var idProduct = req.body.idProduct;
 		db.open(`INSERT INTO Commentary(id, creationDate, title, content, idUser, idProduct)
 			VALUES(sec_idCommentary.nextval, TO_DATE(:creationDate, 'DD/MM/YYYY hh24:mi:ss'), :title, :content, :idUser, :idProduct)`, [creationDate, title, content, idUser, idProduct], true, res);
+	},
+
+	GetAllProductsForCrud: function(req, res){
+		db.open(`SELECT id, name, description FROM Category`, [], false, res);
+	},
+
+	CreateCategoryCrud: function(req, res){
+		var name = req.body.name;
+		var description = req.body.description;
+		var idFather = req.body.idFather;
+		db.open(`BEGIN
+				createCategory(:name, :description, :idFather);
+				END;`, [name, description, idFather], true, res);
+	},
+
+	UpdateCategoryCrud: function(req, res){
+		var idCategory = req.body.idCategory;
+		var name = req.body.name;
+		var description = req.body.description;
+		db.open(`BEGIN
+					updateCategoryCrud(:idCategory, :name, :description);
+				END;`, [idCategory, name, description], true, res);
+	},
+
+	DeleteCategoryCrud: function(req, res){
+		var idCategory = req.params.idCategory;
+		db.open(`BEGIN
+					deleteCategoryCrud(:idCategory);
+				END;`, [idCategory], true, res);
+	},
+
+	GetCategoryById: function(req, res){
+		var idCategory = req.params.idCategory;
+		db.open(`SELECT name, description FROM Category WHERE id = :idCategory`, [idCategory], false, res);
 	}	
 
 }
