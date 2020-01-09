@@ -18,5 +18,6 @@ router.delete('/deleteUser/:idUser', UserController.DeleteUserCrud);
 router.get('/getUserForCrud/:idUser', UserController.GetUserUpdate);
 router.get('/getAllHelpDesk', UserController.GetAllHelpDesk);
 router.post('/newRatingUser', UserController.RatingUser);
+router.put('/updateStatus', UserController.UpdateState);
 
 module.exports = router;

@@ -200,6 +200,11 @@ VALUES(sec_idShoppingCart.nextval);
 INSERT INTO User1(id, name, lastName, password, email, phone, photo, gender, birthDay, registrationDate, address, availableCredit, profitEarned, state, idRole, idShoppingCart, idMemberClass)
 VALUES(1, 'admin', 'admin', 'admin1', 'admin@gmail.com', '448887', null, null, TO_DATE('11-11-2010', 'DD-MM-YYYY'), SYSDATE, null, 0, 0, 2, 1, 1, 1);
 
+INSERT INTO Action(id, name)
+VALUES(1, 'dar de alta');
+INSERT INTO Action(id, name)
+VALUES(2, 'dar de baja');
+
 CREATE SEQUENCE sec_idRoom
 START WITH 1
 MINVALUE 1
@@ -456,6 +461,26 @@ BEGIN
     INSERT INTO UserRating(idHelpDesk, idUser, quantity)
     VALUES(widHelpDesk, widUser, wquantity);
     DELETE FROM Room WHERE id = widRoom;
+END;
+
+CREATE OR REPLACE PROCEDURE ChangeStatusUser(widUser NUMBER, widAdmin NUMBER, widAction NUMBER)
+IS
+    varName VARCHAR2(60);
+BEGIN
+    SELECT name INTO varName FROM User1 WHERE id = widUser;
+    IF widAction = 2 THEN
+        UPDATE User1
+        SET state = 3
+        WHERE id = widUser;
+        INSERT INTO Log(idAction, idUser, description)
+        VALUES(widAction, widAdmin, CONCAT('Se dio de baja al usuario ', varName));
+    ELSE
+        UPDATE User1
+        SET state = 2
+        WHERE id = widUser;
+        INSERT INTO Log(idAction, idUser, description)
+        VALUES(widAction, widAdmin, CONCAT('Se dio de alta al usuario ', varName));
+    END IF;
 END;
     
 

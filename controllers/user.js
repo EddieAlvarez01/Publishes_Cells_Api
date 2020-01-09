@@ -165,6 +165,15 @@ var controller = {
 		db.open(`BEGIN 
 					RatingUser(:idRoom, :idHelpDesk, :idUser, :quantity);
 				END;`, [idRoom, idHelpDesk, idUser, quantity], true, res);
+	},
+
+	UpdateState: function(req, res){
+		var idUser = req.body.idUser;
+		var idAdmin = req.body.idAdmin;
+		var idAction =req.body.idAction;
+		db.open(`BEGIN
+					ChangeStatusUser(:idUser, :idAdmin, :idAction);
+				END;`, [idUser, idAdmin, idAction], true, res);
 	}
 
 }
