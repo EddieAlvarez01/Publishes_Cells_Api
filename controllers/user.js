@@ -174,6 +174,37 @@ var controller = {
 		db.open(`BEGIN
 					ChangeStatusUser(:idUser, :idAdmin, :idAction);
 				END;`, [idUser, idAdmin, idAction], true, res);
+	},
+
+	SendEmailPassword: function(req, res){
+		var toEmail = req.body.email;
+		var toName = req.body.name;
+		var password = req.body.password;
+		mailjet.post('send', { version: 'v3.1' }).request({
+			Messages:[{
+				From:{
+					Email: 'normalhak@gmail.com',
+					Name: 'Publishes_and_Cells',
+				},
+				To:[
+					{
+						Email: toEmail,
+						Name: toName
+					}
+				],
+				Subject: 'Bienvenido a Publishes and Cells',
+				HTMLPart: 'Hola ' + toName + ', su usuario ha sido creado exitosamente, para ingresar al sistema use su correo, y su contraseña para ingresar al sistema es la siguiente: <br>' +
+							'<h3>' + password + '</h3>'
+			}
+			]
+		}).then((result) => {
+			return res.status(200).send({
+				message: 'Correo enviado exitosamente'
+			});
+		}).catch((err) => {
+			console.log(err);
+			return res.status(500);
+		});
 	}
 
 }

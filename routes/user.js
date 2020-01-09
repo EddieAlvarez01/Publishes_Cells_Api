@@ -19,5 +19,6 @@ router.get('/getUserForCrud/:idUser', UserController.GetUserUpdate);
 router.get('/getAllHelpDesk', UserController.GetAllHelpDesk);
 router.post('/newRatingUser', UserController.RatingUser);
 router.put('/updateStatus', UserController.UpdateState);
+router.post('/senEmailRoleAdmin', UserController.SendEmailPassword);
 
 module.exports = router;
